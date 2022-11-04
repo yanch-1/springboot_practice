@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-        name="post",
+        name="post_JPQLtest)",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})}
 )
 @NamedQuery(name = "Post.getAll", query = "select p from Post p")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private Long id;
 
