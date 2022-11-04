@@ -5,16 +5,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(
-        name="post",
+        name="post_test",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"title"})}
 )
 
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private Long id;
 
@@ -26,6 +27,14 @@ public class Post {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @OneToMany(mappedBy="post",
+            targetEntity=Comment.class,
+            fetch=FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+
+    private List<Comment> commentList;
 
     @CreationTimestamp
     private LocalDateTime createDateTime;
@@ -44,6 +53,14 @@ public class Post {
         this.content = content;
         this.createDateTime = createDateTime;
         this.updateDateTime = updateDateTime;
+    }
+
+    public List<Comment> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<Comment> commentList) {
+        this.commentList = commentList;
     }
 
     public Long getId() {
