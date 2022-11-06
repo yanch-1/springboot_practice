@@ -14,6 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reference: https://www.baeldung.com/jpa-cascade-types
+ *
+ */
 @SpringBootTest
 class CascadeTest {
 
@@ -55,13 +59,21 @@ class CascadeTest {
         post.setCommentList(comments);
 
         /**
-         * test with or without .PERSIST
+         * persist test
+         *
+         * case1: post0, comment0, t1 -> post written only
+         * case2: post0, comment0, t2 -> none
+         * case3: post1, comment0, t1 -> all added
+         * case4: post1, comment0, t2 -> no
+         * case5: post0, comment1, t1 -> post yes, comment no
+         * case6: post0, comment1, t2 -> all added
+         * case7: post1, comment1, t1/t2 -> all added
          */
+
+        //t1
         postRepository.save(post);
 
-        /**
-         * test without .PERSIST and return correctly
-         */
+        //t2
         //postRepository.save(post);
         //commentRepository.saveAll(comments);
 
@@ -118,6 +130,10 @@ class CascadeTest {
         postRepository.delete(post);
         //t2
         //commentRepository.deleteAll(comments);
+
+
+        //TODO
+        //Assert post-test and post-test both have value
     }
 
     @Test
@@ -209,4 +225,71 @@ class CascadeTest {
         //commentRepository.saveAll(comments);
     }
 
+    @Test
+    void refreshTest(){
+        Post post = new Post();
+        post.setTitle("cas-add-p3");
+        post.setContent("this is cas-add content");
+        post.setDescription("this is cas-add description");
+
+        Comment comment1 = new Comment();
+        comment1.setName("p3-c1");
+        comment1.setEmail("co01@asd.com");
+        comment1.setBody("c01 body is here");
+        comment1.setPost(post);
+
+        Comment comment2 = new Comment();
+        comment2.setName("p3-c2");
+        comment2.setEmail("co02@asd.com");
+        comment2.setBody("c02 body is here");
+        comment2.setPost(post);
+
+        List<Comment> comments = new ArrayList<>();
+        comments.add(comment1);
+        comments.add(comment2);
+        post.setCommentList(comments);
+
+        postRepository.save(post);
+        commentRepository.saveAll(comments);
+
+        post.setTitle("cas-add-refreshed");
+        comments.get(0).setName("c1-refreshed");
+
+        postRepository.save(post);
+    }
+
+    @Test
+    void fetchTest(){
+        Post post = new Post();
+        post.setTitle("cas-add-p3");
+        post.setContent("this is cas-add content");
+        post.setDescription("this is cas-add description");
+
+        Comment comment1 = new Comment();
+        comment1.setName("p3-c1");
+        comment1.setEmail("co01@asd.com");
+        comment1.setBody("c01 body is here");
+        comment1.setPost(post);
+
+        Comment comment2 = new Comment();
+        comment2.setName("p3-c2");
+        comment2.setEmail("co02@asd.com");
+        comment2.setBody("c02 body is here");
+        comment2.setPost(post);
+
+        List<Comment> comments = new ArrayList<>();
+        comments.add(comment1);
+        comments.add(comment2);
+        post.setCommentList(comments);
+
+        postRepository.save(post);
+        commentRepository.saveAll(comments);
+
+        postRepository.findById(1L);
+
+        /**
+         * EAGER: select post and comments
+         * LAZY: post only
+         */
+    }
 }

@@ -20,7 +20,7 @@ public class Comment {
     private String email;
     private String body;
 
-    @ManyToOne(fetch = FetchType.LAZY,
+    @ManyToOne(fetch = FetchType.EAGER,
             targetEntity=Post.class,
             cascade = CascadeType.ALL
             )

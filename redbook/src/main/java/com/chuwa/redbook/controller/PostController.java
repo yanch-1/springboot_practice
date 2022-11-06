@@ -1,6 +1,7 @@
 package com.chuwa.redbook.controller;
 
 
+import com.chuwa.redbook.entity.Post;
 import com.chuwa.redbook.payload.PostDto;
 import com.chuwa.redbook.payload.PostResponse;
 import com.chuwa.redbook.service.PostService;
@@ -38,6 +39,8 @@ public class PostController {
     ){
         return postService.getAllPost(pageNo, pageSize, sortBy, sortDir);
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") long id){
