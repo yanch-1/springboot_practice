@@ -127,9 +127,9 @@ class CascadeTest {
         //postRepository.delete(postRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Post")));
 
         //t1
-        postRepository.delete(post);
+//        postRepository.delete(post);
         //t2
-        //commentRepository.deleteAll(comments);
+        commentRepository.deleteAll(comments);
 
 
         //TODO
@@ -252,10 +252,13 @@ class CascadeTest {
         postRepository.save(post);
         commentRepository.saveAll(comments);
 
-        post.setTitle("cas-add-refreshed");
-        comments.get(0).setName("c1-refreshed");
+//        post.setTitle("cas-add-refreshed");
+//        comments.get(0).setName("c1-refreshed");
 
+        //打印post
+        //改db数据
         postRepository.save(post);
+        //打印post
     }
 
     @Test

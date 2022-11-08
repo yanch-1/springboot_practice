@@ -31,7 +31,7 @@ public class Post {
     @OneToMany(mappedBy="post",
             targetEntity=Comment.class,
             fetch=FetchType.EAGER,
-            cascade = CascadeType.ALL,
+            cascade = CascadeType.PERSIST,
             orphanRemoval = true)
 
     private List<Comment> commentList;

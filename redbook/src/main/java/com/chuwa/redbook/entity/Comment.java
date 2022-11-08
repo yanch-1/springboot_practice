@@ -22,7 +22,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.EAGER,
             targetEntity=Post.class,
-            cascade = CascadeType.ALL
+            cascade = CascadeType.PERSIST
             )
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
