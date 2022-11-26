@@ -1,0 +1,9 @@
+com/chuwa/training/config/AppInitializer.class
+com/chuwa/training/controller/CustomerController.class
+com/chuwa/training/config/AppContext.class
+com/chuwa/training/dao/CustomerDAO.class
+com/chuwa/training/service/CustomerService.class
+com/chuwa/training/entity/Customer.class
+com/chuwa/training/dao/CustomerDAOImpl.class
+com/chuwa/training/service/CustomerServiceImpl.class
+com/chuwa/training/config/WebMvcConfig.class
