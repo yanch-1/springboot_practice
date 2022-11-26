@@ -14,6 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author b1go
+ * @date 6/26/22 9:21 PM
+ */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -28,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         // get JWT (token) from http request
         String token = getJWTfromRequest(request);
-        //validate token
+        // validate token
         if(StringUtils.hasText(token) && tokenProvider.validateToken(token)){
             // get username from token
             String username = tokenProvider.getUsernameFromJWT(token);
@@ -36,7 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+                    userDetails, null, userDetails.getAuthorities()
+            );
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             // set spring security
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);

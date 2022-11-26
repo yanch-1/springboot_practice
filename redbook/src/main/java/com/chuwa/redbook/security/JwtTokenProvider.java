@@ -1,17 +1,22 @@
 package com.chuwa.redbook.security;
 
+
 import com.chuwa.redbook.exception.BlogAPIException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+/**
+ * @author b1go
+ * @date 6/26/22 9:18 PM
+ */
 @Component
 public class JwtTokenProvider {
+
     @Value("${app.jwt-secret}")
     private String jwtSecret;
     @Value("${app.jwt-expiration-milliseconds}")
@@ -22,7 +27,7 @@ public class JwtTokenProvider {
      * @param authentication
      * @return
      */
-    public String generateToken(Authentication authentication){
+    public String generateToken(Authentication authentication) {
         String username = authentication.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationInMs);
@@ -42,10 +47,10 @@ public class JwtTokenProvider {
      * @param token
      * @return
      */
-    public String getUsernameFromJWT(String token){
+    public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
-                .parseClaimsJws(jwtSecret)
+                .parseClaimsJws(token)
                 .getBody();
 
         return claims.getSubject();
@@ -56,11 +61,11 @@ public class JwtTokenProvider {
      * @param token
      * @return
      */
-    public boolean validateToken(String token){
+    public boolean validateToken(String token) {
         try{
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return true;
-        }catch(SignatureException ex){
+        }catch (SignatureException ex){
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Invalid JWT signature");
         } catch (MalformedJwtException ex) {
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Invalid JWT token");
