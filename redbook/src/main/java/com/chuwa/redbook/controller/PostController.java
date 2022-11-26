@@ -27,7 +27,7 @@ public class PostController {
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
 //    public List<PostDto> getAllPosts(){
 //        return postService.getAllPost();
