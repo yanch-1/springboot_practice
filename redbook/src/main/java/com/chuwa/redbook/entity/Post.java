@@ -1,5 +1,6 @@
 package com.chuwa.redbook.entity;
 
+import com.chuwa.redbook.entity.security.User;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -29,6 +30,21 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "pic1")
+    private String picture1;
+
+    @Column(name = "pic2")
+    private String picture2;
+
+    @Column(name = "pic3")
+    private String picture3;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
@@ -50,11 +66,16 @@ public class Post {
 
     }
 
-    public Post(Long id, String title, String description, String content, LocalDateTime createDateTime, LocalDateTime updateDateTime) {
+    public Post(Long id, String title, String description, String content, String picture1, String picture2, String picture3, User user, Set<Comment> comments, LocalDateTime createDateTime, LocalDateTime updateDateTime) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.content = content;
+        this.picture1 = picture1;
+        this.picture2 = picture2;
+        this.picture3 = picture3;
+        this.user = user;
+        this.comments = comments;
         this.createDateTime = createDateTime;
         this.updateDateTime = updateDateTime;
     }
@@ -107,15 +128,29 @@ public class Post {
         this.updateDateTime = updateDateTime;
     }
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", content='" + content + '\'' +
-                ", createDateTime=" + createDateTime +
-                ", updateDateTime=" + updateDateTime +
-                '}';
+    public String getPicture1() {
+        return picture1;
     }
+
+    public void setPicture1(String picture1) {
+        this.picture1 = picture1;
+    }
+
+    public String getPicture2() {
+        return picture2;
+    }
+
+    public void setPicture2(String picture2) {
+        this.picture2 = picture2;
+    }
+
+    public String getPicture3() {
+        return picture3;
+    }
+
+    public void setPicture3(String picture3) {
+        this.picture3 = picture3;
+    }
+
+
 }

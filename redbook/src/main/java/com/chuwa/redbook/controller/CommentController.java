@@ -1,6 +1,7 @@
 package com.chuwa.redbook.controller;
 
 import com.chuwa.redbook.payload.CommentDto;
+import com.chuwa.redbook.payload.CreateCommentDto;
 import com.chuwa.redbook.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,14 +19,19 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<CommentDto> createComment(@PathVariable(value = "postId") long id,
-                                                    @Valid @RequestBody CommentDto commentDto){
-        return new ResponseEntity<>(commentService.createComment(id, commentDto), HttpStatus.CREATED);
+    public ResponseEntity<CreateCommentDto> createComment(@PathVariable(value = "postId") long id,
+                                                          @Valid @RequestBody CreateCommentDto createCommentDto,
+                                                          Principal principal) {
+        return new ResponseEntity<>(commentService.createComment(id, createCommentDto, principal), HttpStatus.CREATED);
     }
 
     @GetMapping("/posts/{postId}/comments")
     public List<CommentDto> getCommentsByPostId(@PathVariable(value = "postId") Long postId){
         return commentService.getCommentByPostId(postId);
+    }
+    @GetMapping("/posts/{postId}/comments/count")
+    public Integer getCommentsNumByPostId(@PathVariable(value = "postId") Long postId){
+        return commentService.getCommentByPostId(postId).size();
     }
 
     @GetMapping("/posts/{postId}/comments/{id}")
@@ -34,19 +41,22 @@ public class CommentController {
         return new ResponseEntity<>(commentDto, HttpStatus.OK);
     }
 
-    @PutMapping("/posts/{postId}/comments/{id}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable(value = "postId") Long postId,
-                                                    @PathVariable(value = "id") Long commentId,
-                                                    @Valid @RequestBody CommentDto commentDto){
-        CommentDto updateComment = commentService.updateComment(postId, commentId, commentDto);
+    @PutMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<CreateCommentDto> updateComment(@PathVariable(value = "postId") Long postId,
+                                                          @PathVariable(value = "commentId") Long commentId,
+                                                          @Valid @RequestBody CreateCommentDto createCommentDto,
+                                                          Principal principal) {
+        CreateCommentDto updateComment = commentService.updateComment(postId, commentId, createCommentDto, principal);
         return new ResponseEntity<>(updateComment, HttpStatus.OK);
     }
 
     @DeleteMapping("/posts/{postId}/comments/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable(value = "postId") Long postId,
-                                                @PathVariable(value = "id") Long commentId){
-        commentService.deleteComment(postId, commentId);
-        return new ResponseEntity<>("Comment deleted!", HttpStatus.OK);
+                                                @PathVariable(value = "id") Long commentId,
+                                                Principal principal) {
+        commentService.deleteComment(postId, commentId, principal);
+
+        return new ResponseEntity<>("Comment deleted Successfully", HttpStatus.OK);
     }
 
 }

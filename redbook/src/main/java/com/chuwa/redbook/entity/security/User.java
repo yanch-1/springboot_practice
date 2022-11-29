@@ -1,6 +1,13 @@
 package com.chuwa.redbook.entity.security;
 
+import com.chuwa.redbook.entity.Comment;
+import com.chuwa.redbook.entity.Post;
+import com.chuwa.redbook.entity.Profile;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -12,7 +19,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private String name;
     private String account;
     private String email;
@@ -25,23 +32,52 @@ public class User {
     )
     private Set<Role> roles;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Post> posts = new HashSet<>();
+    //  a user can create many comments
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
+
+
+
+    //  getter and setter
+    public Set<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Post> posts) {
+        this.posts = posts;
+    }
+
+    //  getter and setter
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
+    @CreationTimestamp
+    private LocalDateTime createDateTime;
     public User() {
     }
 
-    public User(long id, String name, String account, String email, String password, Set<Role> roles) {
+    public User(long id, String name, String account, String email, String password, Set<Role> roles, LocalDateTime createDateTime) {
         this.id = id;
         this.name = name;
         this.account = account;
         this.email = email;
         this.password = password;
         this.roles = roles;
+        this.createDateTime = createDateTime;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -83,6 +119,14 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public LocalDateTime getCreateDateTime() {
+        return createDateTime;
+    }
+
+    public void setCreateDateTime(LocalDateTime createDateTime) {
+        this.createDateTime = createDateTime;
     }
 }
 

@@ -1,11 +1,15 @@
 package com.chuwa.redbook.service.impl;
 
 import com.chuwa.redbook.dao.PostRepository;
+import com.chuwa.redbook.dao.security.UserRepository;
 import com.chuwa.redbook.entity.Post;
+import com.chuwa.redbook.entity.security.User;
+import com.chuwa.redbook.exception.BlogAPIException;
 import com.chuwa.redbook.exception.ResourceNotFoundException;
 import com.chuwa.redbook.payload.PostDto;
 import com.chuwa.redbook.payload.PostResponse;
 import com.chuwa.redbook.service.PostService;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,41 +31,51 @@ public class PostServiceImpl implements PostService {
     private static final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
     @Autowired
     private PostRepository postRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
 
-    @Override
-    public PostDto createPost(PostDto postDto) {
+//    @Override
+//    public PostDto createPost(PostDto postDto) {
+//
+//        // 把payload转换成entity，这样才能dao去把该数据存到数据库中。
+//        // 此时已成功把request body的信息传递给entity
+//        //Post post = mapToEntity(postDto);
+//        Post post = modelMapper.map(postDto, Post.class);
+//
+//        // 调用Dao的save 方法，将entity的数据存储到数据库MySQL
+//        // save()会返回存储在数据库中的数据
+//        Post savedPost = postRepository.save(post);
+//
+//        // 将save() 返回的数据转换成controller/前端 需要的数据，然后return给controller
+//        //PostDto postResponse = mapToDto(savedPost);
+//
+//
+//        //return postResponse;
+//        return modelMapper.map(savedPost, PostDto.class);
+//
+//
+//    }
 
-        // 把payload转换成entity，这样才能dao去把该数据存到数据库中。
-        // 此时已成功把request body的信息传递给entity
-        //Post post = mapToEntity(postDto);
+    @Override
+    public PostDto createPost(PostDto postDto, Principal principal) {
         Post post = modelMapper.map(postDto, Post.class);
-
-        // 调用Dao的save 方法，将entity的数据存储到数据库MySQL
-        // save()会返回存储在数据库中的数据
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new BlogAPIException(HttpStatus.BAD_REQUEST, "User Not Found"));
+        post.setUser(user);
         Post savedPost = postRepository.save(post);
-
-        // 将save() 返回的数据转换成controller/前端 需要的数据，然后return给controller
-        //PostDto postResponse = mapToDto(savedPost);
-
-
-        //return postResponse;
         return modelMapper.map(savedPost, PostDto.class);
-
-
     }
-
-    @Override
-    public List<PostDto> getAllPost() {
+//    @Override
+//    public List<PostDto> getAllPost() {
+////        List<Post> posts = postRepository.findAll();
+////        List<PostDto> postDtos = posts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+////        return postDtos;
 //        List<Post> posts = postRepository.findAll();
-//        List<PostDto> postDtos = posts.stream().map(post -> mapToDto(post)).collect(Collectors.toList());
+//        List<PostDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
 //        return postDtos;
-        List<Post> posts = postRepository.findAll();
-        List<PostDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
-        return postDtos;
-    }
+//    }
 
     //pageable
     @Override
@@ -96,53 +113,55 @@ public class PostServiceImpl implements PostService {
     }
 
 
-    @Override
-    public PostDto getPostById(long id) {
-//        Optional<Post> post = postRepository.findById(id);
-//        post.orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-//        Post post = postRepository.findById(id).get();
-
+//    @Override
+//    public PostDto getPostById(long id) {
+////        Optional<Post> post = postRepository.findById(id);
+////        post.orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+////        Post post = postRepository.findById(id).get();
+//
+////        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+////        return mapToDto(post);
 //        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-//        return mapToDto(post);
-        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        return modelMapper.map(post, PostDto.class);
-    }
+//        return modelMapper.map(post, PostDto.class);
+//    }
 
 
-    @Override
-    public PostDto updatePost(PostDto postDto, long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
-        post.setContent(post.getContent());
-
-        Post updatePost = postRepository.save(post);
-//        return mapToDto(updatePost);
-        return modelMapper.map(updatePost, PostDto.class);
-    }
-
-    @Override
-    public void deletePostById(long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
-        postRepository.delete(post);
-    }
-
-    private Post mapToEntity(PostDto postDto){
-        Post post = new Post();
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
-        post.setContent(postDto.getContent());
-
-        return post;
-    }
-
-    private PostDto mapToDto(Post post){
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setTitle(post.getTitle());
-        postDto.setDescription(post.getDescription());
-        postDto.setContent(post.getContent());
-
-        return postDto;
-    }
+//    @Override
+//    public PostDto updatePost(PostDto postDto, long id) {
+//        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+//        post.setTitle(postDto.getTitle());
+//        post.setDescription(postDto.getDescription());
+//        post.setContent(postDto.getContent());
+//
+//        //post.setUpdateDateTime(updateDateTime);
+//
+//        Post updatePost = postRepository.save(post);
+////        return mapToDto(updatePost);
+//        return modelMapper.map(updatePost, PostDto.class);
+//    }
+//
+//    @Override
+//    public void deletePostById(long id) {
+//        Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
+//        postRepository.delete(post);
+//    }
+//
+//    private Post mapToEntity(PostDto postDto){
+//        Post post = new Post();
+//        post.setTitle(postDto.getTitle());
+//        post.setDescription(postDto.getDescription());
+//        post.setContent(postDto.getContent());
+//
+//        return post;
+//    }
+//
+//    private PostDto mapToDto(Post post){
+//        PostDto postDto = new PostDto();
+//        postDto.setId(post.getId());
+//        postDto.setTitle(post.getTitle());
+//        postDto.setDescription(post.getDescription());
+//        postDto.setContent(post.getContent());
+//
+//        return postDto;
+//    }
 }
